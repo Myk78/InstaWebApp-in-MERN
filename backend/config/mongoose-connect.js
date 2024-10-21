@@ -1,8 +1,5 @@
 const mongoose = require("mongoose");
-// import mongoose from "mongoose";
 const config = require("config");
-// import config from "config";
-// const { default: mongoose } = require("mongoose");
 mongoose
   .connect(`${config.get("MONGODB_URL")}/Insta_WebAPP`)
   .then(() => {

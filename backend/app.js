@@ -4,6 +4,8 @@ const cookieParser = require("cookie-parser");
 var dotenv = require("dotenv");
 dotenv.config({});
 
+var UserRoutes = require("./routes/userRoutes");
+
 var app = express();
 var db = require("./config/mongoose-connect");
 // import db from "./config/mongoose-connect.js";
@@ -22,5 +24,6 @@ app.get("/", (req, res) => {
     success: true,
   });
 });
+app.use("/user", UserRoutes);
 
 module.exports = app;
