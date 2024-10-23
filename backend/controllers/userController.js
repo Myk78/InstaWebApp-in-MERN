@@ -115,7 +115,7 @@ module.exports.editProfile = async (req, res, next) => {
       const fileUri = getDataUri(profilePicture);
       cloudRespone = await cloudinary.uploader.upload(fileUri);
     }
-    const user = await userModel.findById(userid);
+    const user = await userModel.findById(userid).select("-password");
     if (!user) {
       return res.status(404).json({
         message: "User not Found.",
@@ -138,9 +138,10 @@ module.exports.editProfile = async (req, res, next) => {
 
 module.exports.getSuggestedUser = async (req, res, next) => {
   try {
+    const userId = req.id;
     const SuggestedUser = await user_Model
-      .findById({ _id: { $ne: req.id } })
-      .select("password");
+      .findOne({ _id: { $ne: userId } })
+      .select("-password");
     if (!SuggestedUser) {
       return res.status(404).json({
         message: "Currently do not have user",
@@ -157,7 +158,7 @@ module.exports.getSuggestedUser = async (req, res, next) => {
 module.exports.followorUnfollow = async (req, res, next) => {
   try {
     const followKarnaWala = req.id;
-    const jiskoFollowKarnaH = params.req.id;
+    const jiskoFollowKarnaH = req.params.id;
     if (followKarnaWala === jiskoFollowKarnaH) {
       return res.status(400).json({
         message: "Sorry you dn't follow your self",
@@ -175,14 +176,8 @@ module.exports.followorUnfollow = async (req, res, next) => {
     const isFollowing = user.following.includes(jiskoFollowKarnaH);
     if (isFollowing) {
       await Promise.all([
-        user.updateOne(
-          { _id: followKarnaWala },
-          { $pull: { following: jiskoFollowKarnaH } }
-        ),
-        user.updateOne(
-          { _id: jiskoFollowKarnaH },
-          { $pull: { followers: followKarnaWala } }
-        ),
+        user.updateOne({ $pull: { following: jiskoFollowKarnaH } }),
+        targetUser.updateOne({ $pull: { followers: followKarnaWala } }),
       ]);
       return res
         .status(200)
@@ -190,12 +185,8 @@ module.exports.followorUnfollow = async (req, res, next) => {
     } else {
       await Promise.all([
         user.updateOne(
-          { _id: followKarnaWala },
-          { $push: { following: jiskoFollowKarnaH } }
-        ),
-        user.updateOne(
-          { _id: jiskoFollowKarnaH },
-          { $push: { followers: followKarnaWala } }
+          user.updateOne({ $push: { following: jiskoFollowKarnaH } }),
+          targetUser.updateOne({ $push: { followers: followKarnaWala } })
         ),
       ]);
       return res

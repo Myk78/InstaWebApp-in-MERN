@@ -25,6 +25,6 @@ router.post(
   editProfile
 );
 router.get("/suggestedUser", isAuthenticate, getSuggestedUser);
-router.post("/followAndunFollow", isAuthenticate, followorUnfollow);
+router.post("/followAndunFollow/:id", isAuthenticate, followorUnfollow);
 
 module.exports = router;
