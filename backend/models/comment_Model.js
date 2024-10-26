@@ -1,17 +1,19 @@
-const { text } = require('express');
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const commentSchema = mongoose.Schema({
-    text:{
-        type:String,
-        required:true
+  text: {
+    type: String,
+  },
+  user: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
-    user:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"User"
+  ],
+  post: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "post",
     },
-    post:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"post"
-    },
+  ],
 });
-module.exports = mongoose.model("comments",commentSchema);
+module.exports = mongoose.model("comments", commentSchema);

@@ -5,6 +5,7 @@ var dotenv = require("dotenv");
 dotenv.config({});
 
 var UserRoutes = require("./routes/userRoutes");
+var PostRoutes = require("./routes/postRoutes");
 
 var app = express();
 var db = require("./config/mongoose-connect");
@@ -25,5 +26,6 @@ app.get("/", (req, res) => {
   });
 });
 app.use("/user", UserRoutes);
+app.use("/user", PostRoutes);
 
 module.exports = app;
