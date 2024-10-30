@@ -5,6 +5,8 @@ const { generateToken } = require("../utils/generateToken");
 const { getDataUri } = require("../utils/datauri");
 const { cloudinary } = require("../utils/cloudinary");
 const user_Model = require("../models/user_Model");
+const { promise } = require("bcrypt/promises");
+const post_Model = require("../models/post_Model");
 
 module.exports.registerUser = async (req, res, next) => {
   try {
@@ -54,6 +56,41 @@ module.exports.login = async (req, res, next) => {
         success: false,
       });
     }
+    const token = await generateToken(user);
+
+    // populate the post of active user
+    const populateUser = await Promise.all(
+      user.posts.map(async (postid) => {
+        const post = await post_Model
+          .findById(postid)
+          .populate("user", "username profilePic");
+
+        console.log("Fetched Post:", post); // Log fetched post details
+
+        // Check if post and user are defined
+        if (post && post.user.length > 0) {
+          // Check if the user array is not empty
+          const postUser = post.user[0]; // Access the first user in the array
+          console.log("User ID:", user._id);
+          console.log("Post User ID:", postUser._id); // This should now work
+
+          // Compare IDs using toString() to avoid type mismatch
+          if (postUser._id.toString() === user._id.toString()) {
+            return post; // Return post if user matches
+          }
+        }
+
+        return null; // Return null if condition not met
+      })
+    );
+
+    // Filter out null values
+    const filteredPopulateUser = populateUser.filter((post) => post !== null);
+    console.log("Filtered Populated User Posts:", filteredPopulateUser);
+
+    // Debugging log for final filtered list
+    console.log("Filtered Populated User Posts:", filteredPopulateUser);
+
     user = {
       _id: user.id,
       username: user.username,
@@ -62,9 +99,8 @@ module.exports.login = async (req, res, next) => {
       bio: user.bio,
       following: user.following,
       followers: user.followers,
-      posts: user.posts,
+      posts: filteredPopulateUser,
     };
-    const token = await generateToken(user);
     res
       .cookie("token", token, {
         httpOnly: true,

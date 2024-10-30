@@ -22,9 +22,10 @@ router.post(
 );
 router.get("/post/getpost", isAuthenticate, getAllPost);
 router.get("/post/getUserpost", isAuthenticate, getUserPost);
-router.get("/post/likepost", isAuthenticate, likePost);
-router.get("/post/dislikepost", isAuthenticate, dislikePost);
+router.get("/post/:id/likepost", isAuthenticate, likePost);
+router.get("/post/:id/dislikepost", isAuthenticate, dislikePost);
 router.post("/post/:id/Comment", isAuthenticate, addComents);
 router.post("/post/getComment", isAuthenticate, getCommentsOfPost);
 router.post("/post/deletepost/:id", isAuthenticate, deletePost);
+router.post("/post/:id/bookmark", isAuthenticate, deletePost);
 module.exports = router;
